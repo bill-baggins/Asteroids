@@ -1,19 +1,8 @@
-// #include "game.h"
-// #include <stc/cstr.h>
-#include "raylib.h"
-#include <emscripten/emscripten.h>
+#include "game.h"
 
-static void update_draw_frame(void);
-
-int main() {
-    InitWindow(800, 600, "Web template");
-    emscripten_set_main_loop(update_draw_frame, 0, 1);
+int main(void) {
+    Game *game = Game_new();
+    Game_run(game);
+    Game_delete(&game);
     return 0;
-}
-
-static void update_draw_frame(void) {
-    BeginDrawing();
-    ClearBackground(SKYBLUE);
-    DrawText("hi", GetScreenWidth() / 2, GetScreenHeight() / 2, RAYWHITE);
-    EndDrawing();
 }

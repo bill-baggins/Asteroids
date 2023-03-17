@@ -416,16 +416,3 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 endif
 	@echo Cleaning done
 
-
-
-# CC ?= emcc 
-# RAYLIB_PATH ?= C:/raylib/raylib
-# OUT ?= build/game.html
-# SRC ?= src/main.c src/game.c 
-# INCLUDE_PATH ?= -I. -IC:/raylib/raylib/src -IC:/raylib/raylib/src/external -I headers -IC:/src/stc/include
-# LIB_PATHS ?= -L. -LC:/raylib/raylib/src -LC:/raylib/raylib/src C:/raylib/raylib/src/web/libraylib.a
-# CFLAGS += -Wall -std=c99 -D_DEFAULT_SOURCE -Wno-missing-braces -s -O0 -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 
-# CFLAGS += --preload-file resources -s ASYNCIFY -DPLATFORM_WEB --shell-file $(RAYLIB_PATH)/src/minshell.html
-
-# all:
-#     $(CC) -o $(OUT) $(SRC) $(CFLAGS) $(INCLUDE_PATH) $(LIB_PATHS)
