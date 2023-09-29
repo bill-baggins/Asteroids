@@ -2,3 +2,4 @@ Makefile.android
 .vscode
 build
 main.code-workspace
+*.exe

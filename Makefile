@@ -26,7 +26,7 @@
 # Define required raylib variables
 
 PROJECT_NAME       ?= build/game
-RAYLIB_VERSION     ?= 4.2.0
+RAYLIB_VERSION     ?= 4.5.0
 RAYLIB_PATH        ?= C:/raylib/raylib
 
 # Define compiler path on Windows
@@ -34,11 +34,11 @@ COMPILER_PATH      ?= C:/raylib/w64devkit/bin
 
 # Define default options
 # One of PLATFORM_DESKTOP, PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-PLATFORM           ?= PLATFORM_DESKTOP
+PLATFORM  ?= PLATFORM_DESKTOP
 ifeq ($(PLATFORM), PLATFORM_WEB)
-    PROJECT_NAME ?= build/game
+    PROJECT_NAME := build/game
 else
-    PROJECT_NAME ?= desktop/game
+    PROJECT_NAME := game
 endif
 
 # Locations of your newly installed library and associated headers. See ../src/Makefile
@@ -59,7 +59,7 @@ RAYLIB_H_INSTALL_PATH ?= $(DESTDIR)/include
 RAYLIB_LIBTYPE        ?= STATIC
 
 # Build mode for project: DEBUG or RELEASE
-BUILD_MODE            ?= RELEASE
+BUILD_MODE            ?= DEBUG
 
 # Use external GLFW library instead of rglfw module
 # TODO: Review usage on Linux. Target version of choice. Switch on -lglfw or -lglfw3
@@ -151,7 +151,7 @@ EXAMPLE_RUNTIME_PATH   ?= $(RAYLIB_RELEASE_PATH)
 
 # Define default C compiler: gcc
 # NOTE: define g++ compiler if using C++
-CC = gcc
+CC = g++
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
     ifeq ($(PLATFORM_OS),OSX)
@@ -174,11 +174,11 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     # HTML5 emscripten compiler
     # WARNING: To compile to HTML5, code must be redesigned
     # to use emscripten.h and emscripten_set_main_loop()
-    CC = emcc
+    CC = em++
 endif
 
 # Define default make program: Mingw32-make
-MAKE = mingw32-make
+MAKE = make
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
     ifeq ($(PLATFORM_OS),LINUX)
@@ -199,7 +199,10 @@ endif
 #  -std=gnu99           defines C language mode (GNU C from 1999 revision)
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS += -Wall -std=c99 -D_DEFAULT_SOURCE -Wno-missing-braces
+CFLAGS += -Wall -std=c++20 -Wno-missing-braces -pedantic-errors
+ifeq ($(PLATFORM), PLATFORM_WEB)
+    CFLAGS += -D_DEFAULT_SOURCE
+endif
 
 ifeq ($(BUILD_MODE),DEBUG)
     CFLAGS += -g -O0
@@ -243,13 +246,14 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     # --profiling                # include information for code profiling
     # --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
     # --preload-file resources   # specify a resources folder for data compilation
-    CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 --preload-file resources -s ASYNCIFY
+	# 67108864 is 64 mb.
+    CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=67108864 --preload-file resources -s ASYNCIFY
     ifeq ($(BUILD_MODE), DEBUG)
         CFLAGS += -s ASSERTIONS=1 --profiling
     endif
 
     # Define a custom shell .html and output extension
-    CFLAGS += --shell-file $(RAYLIB_PATH)/src/minshell.html
+    CFLAGS += --shell-file ./minshell.html
     EXT = .html
 endif
 
@@ -350,7 +354,7 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
     # Libraries for web (HTML5) compiling
-    LDLIBS = $(RAYLIB_RELEASE_PATH)/web/libraylib.a
+    LDLIBS = ../../libraylib.a
 endif
 
 # Define a recursive wildcard function
@@ -361,11 +365,11 @@ SRC_DIR = src
 OBJ_DIR = obj
 
 # Define all object files from source files
-SRC = $(call rwildcard, *.c, *.h)
-ifeq ($(PLATFORM), PLATFORM_WEB)    
-    OBJS ?= $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+SRC = $(call rwildcard, *.cpp, *.hpp)
+ifeq ($(PLATFORM), PLATFORM_WEB)
+    OBJS ?= $(wildcard *.cpp) $(wildcard **/*.cpp)
 else
-    OBJS ?= src/*.c
+    OBJS ?= src/*.cpp
 endif
 
 # For Android platform we call a custom Makefile.Android
@@ -415,17 +419,3 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	del *.o *.html *.js
 endif
 	@echo Cleaning done
-
-
-
-# CC ?= emcc 
-# RAYLIB_PATH ?= C:/raylib/raylib
-# OUT ?= build/game.html
-# SRC ?= src/main.c src/game.c 
-# INCLUDE_PATH ?= -I. -IC:/raylib/raylib/src -IC:/raylib/raylib/src/external -I headers -IC:/src/stc/include
-# LIB_PATHS ?= -L. -LC:/raylib/raylib/src -LC:/raylib/raylib/src C:/raylib/raylib/src/web/libraylib.a
-# CFLAGS += -Wall -std=c99 -D_DEFAULT_SOURCE -Wno-missing-braces -s -O0 -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 
-# CFLAGS += --preload-file resources -s ASYNCIFY -DPLATFORM_WEB --shell-file $(RAYLIB_PATH)/src/minshell.html
-
-# all:
-#     $(CC) -o $(OUT) $(SRC) $(CFLAGS) $(INCLUDE_PATH) $(LIB_PATHS)
